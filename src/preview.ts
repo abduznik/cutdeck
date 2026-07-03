@@ -48,7 +48,7 @@ export function renderPreview(
     cell.style.fontSize = `${Math.max(6, 11 * scale)}px`;
 
     if (i < frontCards.length) {
-      renderPreviewFace(cell, frontCards[i].front, frontCards[i].frontRtl, textAlign);
+      renderPreviewFace(cell, frontCards[i].front, frontCards[i].frontRtl, textAlign, cardW, cardH);
       if (frontCards[i].warnings.length > 0) {
         const badge = document.createElement('span');
         badge.className = 'preview-warn-badge';
@@ -87,7 +87,7 @@ export function renderPreview(
     cell.style.fontSize = `${Math.max(6, 11 * scale)}px`;
 
     if (i < frontCards.length) {
-      renderPreviewFace(cell, frontCards[i].back, frontCards[i].backRtl, textAlign);
+      renderPreviewFace(cell, frontCards[i].back, frontCards[i].backRtl, textAlign, cardW, cardH);
     }
     backPage.appendChild(cell);
   }

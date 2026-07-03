@@ -183,7 +183,7 @@ const OFFSCREEN_STYLE = `
   visibility:hidden; pointer-events:none;
   background:#fff; color:#111;
   font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
-  overflow:visible;
+  overflow:hidden;
   word-break:break-word;
   box-sizing:border-box;
 `;
@@ -260,17 +260,17 @@ export class CardRenderer {
   }
 }
 
-/** Lightweight preview renderer with rotation */
+/** Lightweight preview renderer with rotation. Dimensions passed explicitly
+ *  to avoid reading clientWidth/clientHeight from detached DOM elements. */
 export function renderPreviewFace(
   container: HTMLElement,
   text: string,
   rtl: boolean,
-  textAlign: TextAlign
+  textAlign: TextAlign,
+  cardW: number,
+  cardH: number
 ): void {
   container.innerHTML = '';
-
-  const cardW = container.clientWidth;
-  const cardH = container.clientHeight;
 
   const inner = document.createElement('div');
   inner.className = 'card-rotated-inner';
