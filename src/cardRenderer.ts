@@ -183,7 +183,7 @@ const OFFSCREEN_STYLE = `
   visibility:hidden; pointer-events:none;
   background:#fff; color:#111;
   font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
-  overflow:hidden;
+  overflow:visible;
   word-break:break-word;
   box-sizing:border-box;
 `;

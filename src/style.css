@@ -359,7 +359,7 @@ html, body {
 .preview-card {
   position: absolute;
   border: 1px solid #d8d8d8;
-  overflow: hidden;
+  overflow: visible;
   font-family: var(--font-serif);
   line-height: 1.35;
   word-break: break-word;
