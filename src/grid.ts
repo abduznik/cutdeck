@@ -26,9 +26,9 @@ export interface GridDimensions {
 }
 
 export const PAPER_PRESETS: PaperSize[] = [
-  { id: 'a4', label: 'A4', widthMm: 297, heightMm: 210, defaultRows: 2, defaultCols: 5 },
-  { id: 'letter', label: 'Letter', widthMm: 279.4, heightMm: 215.9, defaultRows: 2, defaultCols: 5 },
-  { id: 'a5', label: 'A5', widthMm: 210, heightMm: 148, defaultRows: 2, defaultCols: 3 },
+  { id: 'a4', label: 'A4', widthMm: 210, heightMm: 297, defaultRows: 5, defaultCols: 2 },
+  { id: 'letter', label: 'Letter', widthMm: 215.9, heightMm: 279.4, defaultRows: 5, defaultCols: 2 },
+  { id: 'a5', label: 'A5', widthMm: 148, heightMm: 210, defaultRows: 3, defaultCols: 2 },
 ];
 
 export function getPaperPreset(id: string): PaperSize {

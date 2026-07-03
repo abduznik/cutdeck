@@ -17,6 +17,7 @@ interface RenderOptions {
   minFontSize: number;
   maxFontSize: number;
   textAlign: TextAlign;
+  autoFont: boolean;
 }
 
 function buildContentHtml(text: string): string {
@@ -66,8 +67,8 @@ function decodeHtml(s: string): string {
 }
 
 /**
- * Create card face DOM inside a landscape-sized outer container.
- * Content is rotated 90° CW so text reads in portrait orientation.
+ * Create card face DOM. Landscape card (wide), text rotated -90° so it reads
+ * in portrait orientation (bottom-to-top when card is horizontal).
  */
 function createCardFace(
   outer: HTMLElement,
@@ -81,13 +82,18 @@ function createCardFace(
   const cardW = outer.clientWidth;
   const cardH = outer.clientHeight;
 
-  // Inner container: dimensions swapped (text flows along long axis)
+  // Inner container: dimensions swapped for rotation
   const inner = document.createElement('div');
   inner.className = 'card-rotated-inner';
   inner.style.width = `${cardH}px`;
   inner.style.height = `${cardW}px`;
   inner.style.fontSize = `${fontSize}px`;
   inner.style.lineHeight = '1.35';
+
+  // Compute transform: translate to center, then rotate -90°
+  const tx = (cardW - cardH) / 2;
+  const ty = (cardH - cardW) / 2;
+  inner.style.transform = `translate(${tx}px, ${ty}px) rotate(-90deg)`;
 
   if (textAlign === 'center') {
     inner.style.display = 'flex';
@@ -141,23 +147,31 @@ function findFittingFontSize(
   outer: HTMLElement,
   text: string,
   rtl: boolean,
-  width: number,
-  height: number,
   minSize: number,
   maxSize: number,
   textAlign: TextAlign
 ): number {
-  let size = maxSize;
+  // Binary search for the largest font that fits
+  let lo = minSize;
+  let hi = maxSize;
   const step = 0.5;
 
+  // First check if max fits
+  createCardFace(outer, text, rtl, maxSize, textAlign);
+  const inner = outer.querySelector('.card-rotated-inner') as HTMLElement;
+  if (inner && !(inner.scrollHeight > inner.clientHeight + 1 || inner.scrollWidth > inner.clientWidth + 1)) {
+    return maxSize;
+  }
+
+  // Linear shrink from max
+  let size = maxSize;
   while (size >= minSize) {
     createCardFace(outer, text, rtl, size, textAlign);
-    const inner = outer.querySelector('.card-rotated-inner') as HTMLElement;
-    if (!inner) return size;
-    const overflows =
-      inner.scrollHeight > inner.clientHeight + 1 ||
-      inner.scrollWidth > inner.clientWidth + 1;
-    if (!overflows) return size;
+    const inn = outer.querySelector('.card-rotated-inner') as HTMLElement;
+    if (!inn) return size;
+    if (!(inn.scrollHeight > inn.clientHeight + 1 || inn.scrollWidth > inn.clientWidth + 1)) {
+      return size;
+    }
     size -= step;
   }
 
@@ -192,13 +206,14 @@ export class CardRenderer {
   }
 
   async renderCard(card: Card): Promise<RenderedCard> {
-    const { cardWidthPx: w, cardHeightPx: h, minFontSize, maxFontSize, textAlign } = this.options;
+    const { cardWidthPx: w, cardHeightPx: h, minFontSize, maxFontSize, textAlign, autoFont } = this.options;
     const frontWarnings: string[] = [];
     const backWarnings: string[] = [];
 
     // --- Front ---
+    const frontMax = autoFont ? maxFontSize : maxFontSize;
     const frontSize = findFittingFontSize(
-      this.container, card.front, card.frontRtl, w, h, minFontSize, maxFontSize, textAlign
+      this.container, card.front, card.frontRtl, minFontSize, frontMax, textAlign
     );
     if (frontSize <= minFontSize && card.front) {
       createCardFace(this.container, card.front, card.frontRtl, frontSize, textAlign);
@@ -210,8 +225,9 @@ export class CardRenderer {
     const frontImg = await this.renderFace(card.front, card.frontRtl, frontSize);
 
     // --- Back ---
+    const backMax = autoFont ? maxFontSize : maxFontSize;
     const backSize = findFittingFontSize(
-      this.container, card.back, card.backRtl, w, h, minFontSize, maxFontSize, textAlign
+      this.container, card.back, card.backRtl, minFontSize, backMax, textAlign
     );
     if (backSize <= minFontSize && card.back) {
       createCardFace(this.container, card.back, card.backRtl, backSize, textAlign);
@@ -258,6 +274,12 @@ export function renderPreviewFace(
 
   const inner = document.createElement('div');
   inner.className = 'card-rotated-inner';
+  inner.style.width = `${cardH}px`;
+  inner.style.height = `${cardW}px`;
+
+  const tx = (cardW - cardH) / 2;
+  const ty = (cardH - cardW) / 2;
+  inner.style.transform = `translate(${tx}px, ${ty}px) rotate(-90deg)`;
 
   if (textAlign === 'center') {
     inner.style.display = 'flex';

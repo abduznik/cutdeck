@@ -260,6 +260,22 @@ html, body {
   font-size: 11px;
 }
 
+.auto-check {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--text-dim);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.auto-check input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 12px;
+  height: 12px;
+  cursor: pointer;
+}
+
 .range-row {
   flex: 1;
   display: flex;
@@ -275,6 +291,9 @@ html, body {
   background: var(--border);
   border-radius: 0;
   outline: none;
+}
+.ctrl-range:disabled {
+  opacity: 0.3;
 }
 .ctrl-range::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -292,7 +311,7 @@ html, body {
 }
 
 .range-val {
-  width: 28px;
+  width: 32px;
   text-align: right;
   font-size: 10px;
   color: var(--text-dim);
@@ -362,22 +381,17 @@ html, body {
   z-index: 2;
 }
 
-/* ── Rotated card inner (landscape card, portrait text) ── */
+/* ── Rotated card inner ──────────────────────── */
 .card-rotated-inner {
   position: absolute;
   transform-origin: center center;
-  transform: translate(calc((var(--card-h) - var(--card-w)) / 2), calc((var(--card-h) - var(--card-w)) / 2)) rotate(90deg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   padding: 4px;
   word-break: break-word;
-}
-
-/* For offscreen renderer — set via JS with explicit px */
-.card-rotated-inner {
-  /* Fallback: set via inline style in JS */
+  /* transform set via inline style in JS */
 }
 
 /* Cutting mat tick marks */

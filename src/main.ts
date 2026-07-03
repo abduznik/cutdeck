@@ -5,6 +5,7 @@ import { generatePdf } from './pdf';
 import { renderPreview } from './preview';
 
 // ── Examples ───────────────────────────────────
+// Use String.raw to avoid double-backslash issues in LaTeX
 const EXAMPLES: Record<string, string> = {
   '': '',
   'Plain text': `photosynthesis | process by which plants convert light into energy
@@ -13,11 +14,11 @@ osmosis | movement of water across a semipermeable membrane
 DNA | deoxyribonucleic acid — carries genetic instructions
 ribosome | cellular structure that synthesizes proteins`,
 
-  'LaTeX / math': `Euler's identity | $e^{i\\pi} + 1 = 0$
-Quadratic formula | $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$
-Integral | $$\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}$$
-Taylor series | $e^x = \\sum_{n=0}^{\\infty} \\frac{x^n}{n!}$
-Matrix | $$A = \\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}$$`,
+  'LaTeX / math': String.raw`Euler's identity | $e^{i\pi} + 1 = 0$
+Quadratic formula | $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$
+Integral | $$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
+Taylor series | $e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!}$
+Matrix | $$A = \begin{pmatrix} a & b \\ c & d \end{pmatrix}$$`,
 
   'Images': `Golden Retriever | ![dog](https://picsum.photos/seed/dog/200/150)
 Mountain landscape | ![mountain](https://picsum.photos/seed/mountain/200/150)
@@ -30,11 +31,11 @@ City skyline | ![city](https://picsum.photos/seed/city/200/150)`,
 mathematics | מתמטיקה $x^2 + y^2 = z^2$
 ![Israel](https://picsum.photos/seed/israel/200/150) | ארץ ישראל`,
 
-  'Mixed (all features)': `Euler's identity | $e^{i\\pi} + 1 = 0$ — the most beautiful equation
+  'Mixed (all features)': String.raw`Euler's identity | $e^{i\pi} + 1 = 0$ — the most beautiful equation
 Golden Retriever | ![dog](https://picsum.photos/seed/golden/200/150) — loyal companion
-שלום עולם | $\\alpha + \\beta = \\gamma$ — Hebrew with inline math
-Integral | $$\\int_0^1 \\frac{1}{1+x^2} dx = \\frac{\\pi}{4}$$
-DNA structure | ![dna](https://picsum.photos/seed/dna/200/150) — $A \\cdot T, G \\equiv C$`,
+שלום עולם | $\alpha + \beta = \gamma$ — Hebrew with inline math
+Integral | $$\int_0^1 \frac{1}{1+x^2} dx = \frac{\pi}{4}$$
+DNA structure | ![dna](https://picsum.photos/seed/dna/200/150) — $A \cdot T, G \equiv C$`,
 
   'Anki TSV export': `photosynthesis\tprocess by which plants convert light into energy
 mitochondria\tpowerhouse of the cell
@@ -55,6 +56,7 @@ const paperSize = document.getElementById('paper-size') as HTMLSelectElement;
 const fontSizeRange = document.getElementById('font-size-range') as HTMLInputElement;
 const fontSizeLabel = document.getElementById('font-size-label') as HTMLElement;
 const textAlignSelect = document.getElementById('text-align') as HTMLSelectElement;
+const autoFontCheck = document.getElementById('auto-font') as HTMLInputElement;
 
 const cardCountEl = document.getElementById('card-count') as HTMLElement;
 const sheetInfoEl = document.getElementById('sheet-info') as HTMLElement;
@@ -79,6 +81,14 @@ function getConfig(): GridConfig {
 
 function getTextAlign(): TextAlign {
   return (textAlignSelect.value as TextAlign) || 'normal';
+}
+
+function isAutoFont(): boolean {
+  return autoFontCheck.checked;
+}
+
+function getMaxFontSize(): number {
+  return isAutoFont() ? 40 : parseInt(fontSizeRange.value, 10);
 }
 
 function updateSummary(cards: ReturnType<typeof parseInput>['cards'], errors: ReturnType<typeof parseInput>['errors']) {
@@ -190,10 +200,17 @@ paperSize.addEventListener('change', () => {
   doUpdate();
 });
 fontSizeRange.addEventListener('input', () => {
-  fontSizeLabel.textContent = `${fontSizeRange.value}px`;
+  if (!isAutoFont()) {
+    fontSizeLabel.textContent = `${fontSizeRange.value}px`;
+  }
   doUpdate();
 });
 textAlignSelect.addEventListener('change', doUpdate);
+autoFontCheck.addEventListener('change', () => {
+  fontSizeRange.disabled = isAutoFont();
+  fontSizeLabel.textContent = isAutoFont() ? 'auto' : `${fontSizeRange.value}px`;
+  doUpdate();
+});
 
 // ── PDF generation ─────────────────────────────
 downloadBtn.addEventListener('click', async () => {
@@ -206,6 +223,8 @@ downloadBtn.addEventListener('click', async () => {
   const config = getConfig();
   const grid = computeGrid(config, cards.length);
   const textAlign = getTextAlign();
+  const autoFont = isAutoFont();
+  const maxFontSize = getMaxFontSize();
 
   downloadBtn.disabled = true;
   statusEl.textContent = `Rendering ${cards.length} cards…`;
@@ -219,8 +238,9 @@ downloadBtn.addEventListener('click', async () => {
     cardWidthPx,
     cardHeightPx,
     minFontSize: 6,
-    maxFontSize: parseInt(fontSizeRange.value, 10),
+    maxFontSize,
     textAlign,
+    autoFont,
   });
 
   const renderedCards = [];

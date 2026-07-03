@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>cutdeck — flashcard-to-print PDF</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <link rel="stylesheet" href="/src/style.css">
 </head>
 <body>
@@ -68,20 +69,24 @@
           <div class="grid-inputs">
             <label class="grid-dim">
               <span class="dim-label">R</span>
-              <input id="grid-rows" type="number" min="1" max="8" value="2" class="ctrl-num">
+              <input id="grid-rows" type="number" min="1" max="8" value="5" class="ctrl-num">
             </label>
             <span class="grid-x">×</span>
             <label class="grid-dim">
               <span class="dim-label">C</span>
-              <input id="grid-cols" type="number" min="1" max="8" value="5" class="ctrl-num">
+              <input id="grid-cols" type="number" min="1" max="8" value="2" class="ctrl-num">
             </label>
           </div>
         </div>
         <div class="control-group">
-          <label class="ctrl-label">Max font</label>
+          <label class="ctrl-label">Font</label>
+          <label class="auto-check">
+            <input id="auto-font" type="checkbox" checked>
+            <span>auto</span>
+          </label>
           <div class="range-row">
-            <input id="font-size-range" type="range" min="8" max="28" value="16" step="1" class="ctrl-range">
-            <span id="font-size-label" class="range-val">16px</span>
+            <input id="font-size-range" type="range" min="8" max="32" value="20" step="1" class="ctrl-range" disabled>
+            <span id="font-size-label" class="range-val">auto</span>
           </div>
         </div>
         <div class="control-group">
