@@ -90,10 +90,10 @@ function createCardFace(
   inner.style.fontSize = `${fontSize}px`;
   inner.style.lineHeight = '1.35';
 
-  // Compute transform: translate to center, then rotate -90°
+  // Compute transform: translate to center, then rotate 90°
   const tx = (cardW - cardH) / 2;
   const ty = (cardH - cardW) / 2;
-  inner.style.transform = `translate(${tx}px, ${ty}px) rotate(-90deg)`;
+  inner.style.transform = `translate(${tx}px, ${ty}px) rotate(90deg)`;
 
   if (textAlign === 'center') {
     inner.style.display = 'flex';
@@ -279,7 +279,7 @@ export function renderPreviewFace(
 
   const tx = (cardW - cardH) / 2;
   const ty = (cardH - cardW) / 2;
-  inner.style.transform = `translate(${tx}px, ${ty}px) rotate(-90deg)`;
+  inner.style.transform = `translate(${tx}px, ${ty}px) rotate(90deg)`;
 
   if (textAlign === 'center') {
     inner.style.display = 'flex';
