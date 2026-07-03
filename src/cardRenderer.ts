@@ -247,6 +247,15 @@ export class CardRenderer {
     const inner = this.container.querySelector('.card-rotated-inner') as HTMLElement;
     if (inner) await waitForImages(Array.from(inner.querySelectorAll('img')));
 
+    console.log(
+      `[pdf-capture] container clientW=${this.container.clientWidth} clientH=${this.container.clientHeight} ` +
+      `innerHTML.length=${this.container.innerHTML.length} ` +
+      `inner clientW=${inner?.clientWidth} clientH=${inner?.clientHeight} ` +
+      `inner scrollW=${inner?.scrollWidth} scrollH=${inner?.scrollHeight} ` +
+      `options W=${this.options.cardWidthPx} H=${this.options.cardHeightPx} ` +
+      `overflow=${getComputedStyle(this.container).overflow}`
+    );
+
     const html2canvas = (await import('html2canvas')).default;
     const canvas = await html2canvas(this.container, {
       scale: SCALE,
