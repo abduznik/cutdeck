@@ -45,7 +45,7 @@ export function generatePdf(options: PdfOptions): Uint8Array {
   const cardH = pageH / grid.rows;
 
   const doc = new jsPDF({
-    orientation: 'portrait',
+    orientation: 'landscape',
     unit: 'pt',
     format: [pageW, pageH],
   });
@@ -58,7 +58,7 @@ export function generatePdf(options: PdfOptions): Uint8Array {
     const sheetRendered = renderedCards.slice(sheetStart, sheetEnd);
 
     // --- Front page ---
-    doc.addPage([pageW, pageH], 'portrait');
+    doc.addPage([pageW, pageH], 'landscape');
 
     for (let i = 0; i < grid.cardsPerPage; i++) {
       const col = i % grid.cols;
@@ -82,7 +82,7 @@ export function generatePdf(options: PdfOptions): Uint8Array {
     drawCutGuides(doc, grid.rows, grid.cols, pageW, pageH);
 
     // --- Back page (mirrored horizontally per row) ---
-    doc.addPage([pageW, pageH], 'portrait');
+    doc.addPage([pageW, pageH], 'landscape');
 
     for (let i = 0; i < grid.cardsPerPage; i++) {
       const col = i % grid.cols;
