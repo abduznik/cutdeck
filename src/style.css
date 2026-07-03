@@ -1,0 +1,408 @@
+:root {
+  --bg: #121318;
+  --surface: #191a21;
+  --surface-raised: #20212a;
+  --border: #2a2b34;
+  --text: #c5c6cb;
+  --text-dim: #6d6e76;
+  --text-faint: #44454d;
+  --accent: #c9a84c;
+  --accent-dim: #332d1a;
+  --error: #b5524a;
+  --error-dim: #2e1a18;
+  --warn: #c48840;
+  --warn-dim: #2e2318;
+  --mat: #161e1a;
+  --mat-line: #243028;
+  --mat-tick: #3a4a3e;
+  --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', 'Menlo', monospace;
+  --font-serif: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ──────────────────────────────────── */
+.app {
+  display: flex;
+  height: 100vh;
+  gap: 1px;
+  background: var(--border);
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pane--input { flex: 1 1 45%; }
+.pane--config { flex: 1 1 55%; }
+
+/* ── Pane bars ───────────────────────────────── */
+.pane-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.pane-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.file-btn {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 1px 6px;
+  border: 1px solid var(--accent-dim);
+  background: transparent;
+  transition: background 0.12s;
+}
+.file-btn:hover { background: var(--accent-dim); }
+
+/* ── Textarea + drop zone ────────────────────── */
+.drop-zone {
+  flex: 1;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+}
+
+.card-textarea {
+  flex: 1;
+  width: 100%;
+  padding: 10px;
+  background: var(--bg);
+  color: var(--text);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.65;
+  resize: none;
+  outline: none;
+  tab-size: 4;
+}
+.card-textarea::placeholder { color: var(--text-faint); }
+
+.drop-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 19, 24, 0.92);
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.drag-over .drop-hint { opacity: 1; }
+.drag-over .card-textarea { opacity: 0.3; }
+
+/* ── Footer / summary ────────────────────────── */
+.pane-footer {
+  padding: 6px 10px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.summary-row {
+  font-size: 11px;
+  color: var(--text);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.summary-row--dim { color: var(--text-dim); margin-top: 1px; }
+.sep { color: var(--text-faint); }
+
+.list {
+  list-style: none;
+  margin-top: 4px;
+}
+.list:empty { display: none; }
+
+.error-item {
+  font-size: 10px;
+  color: var(--error);
+  padding: 1px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.warn-item {
+  font-size: 10px;
+  color: var(--warn);
+  padding: 1px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Controls ────────────────────────────────── */
+.controls {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ctrl-label {
+  width: 56px;
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.ctrl-select {
+  flex: 1;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 3px 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  border-radius: 0;
+  outline: none;
+}
+.ctrl-select:focus { border-color: var(--accent); }
+
+.grid-inputs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.grid-dim {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.dim-label {
+  font-size: 9px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.ctrl-num {
+  width: 36px;
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 3px 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-align: center;
+  border-radius: 0;
+  outline: none;
+}
+.ctrl-num:focus { border-color: var(--accent); }
+
+.grid-x {
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
+.range-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ctrl-range {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--border);
+  border-radius: 0;
+  outline: none;
+}
+.ctrl-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border-radius: 0;
+  cursor: pointer;
+}
+.ctrl-range::-moz-range-thumb {
+  width: 10px; height: 10px;
+  background: var(--accent);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.range-val {
+  width: 28px;
+  text-align: right;
+  font-size: 10px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* ── Preview (cutting mat) ───────────────────── */
+.preview-container {
+  flex: 1;
+  overflow: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background:
+    repeating-linear-gradient(0deg, var(--mat-line) 0 1px, transparent 1px 20px),
+    repeating-linear-gradient(90deg, var(--mat-line) 0 1px, transparent 1px 20px),
+    var(--mat);
+}
+
+.preview-empty {
+  color: var(--text-faint);
+  font-size: 11px;
+  padding: 32px 0;
+}
+
+.preview-page {
+  position: relative;
+  background: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+.preview-page-label {
+  position: absolute;
+  bottom: -18px;
+  left: 0;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.preview-card {
+  position: absolute;
+  border: 1px solid #d8d8d8;
+  padding: 3px;
+  overflow: hidden;
+  font-family: var(--font-serif);
+  line-height: 1.35;
+  word-break: break-word;
+  background: #fff;
+}
+
+.preview-card--back {
+  background: #fafafa;
+}
+
+.preview-warn-badge {
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-size: 8px;
+  font-family: var(--font-mono);
+  color: var(--warn);
+  font-weight: 700;
+}
+
+/* Cutting mat tick marks */
+.cut-tick {
+  position: absolute;
+  background: var(--mat-tick);
+  z-index: 1;
+}
+.cut-tick--h {
+  left: -1px;
+  height: 1px;
+}
+.cut-tick--v {
+  top: -1px;
+  width: 1px;
+}
+
+/* ── KaTeX in cards ──────────────────────────── */
+.card-content .katex { font-size: 1em; }
+.katex-error { color: var(--error); font-size: 0.8em; }
+
+/* ── Generate bar ────────────────────────────── */
+.generate-bar {
+  padding: 8px 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.download-btn {
+  padding: 6px 14px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.download-btn:hover { background: var(--accent); color: var(--bg); }
+.download-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.download-btn:disabled:hover { background: var(--accent-dim); color: var(--accent); }
+
+.gen-status {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+/* ── Scrollbar ───────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 860px) {
+  .app { flex-direction: column; }
+  .pane--input, .pane--config { flex: none; }
+  .pane--input { height: 40vh; }
+  .pane--config { height: 60vh; }
+  .drop-hint { display: none; }
+}

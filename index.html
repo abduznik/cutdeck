@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cutdeck — flashcard-to-print PDF</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- INPUT PANE -->
+    <div class="pane pane--input">
+      <div class="pane-bar">
+        <span class="pane-title">INPUT</span>
+        <label class="file-btn" for="file-input">+ file</label>
+        <input type="file" id="file-input" accept=".txt,.csv,.tsv" hidden>
+      </div>
+      <div id="drop-zone" class="drop-zone">
+        <textarea
+          id="card-input"
+          class="card-textarea"
+          placeholder="term | definition&#10;term | definition&#10;&#10;tab-separated from spreadsheets / Anki also works"
+          spellcheck="false"
+        ></textarea>
+        <div id="drop-hint" class="drop-hint">drop .txt / .csv / .tsv here</div>
+      </div>
+      <div class="pane-footer">
+        <div class="summary-row">
+          <span id="card-count">0 cards parsed</span>
+          <span class="sep">·</span>
+          <span id="sheet-info"></span>
+        </div>
+        <div class="summary-row summary-row--dim">
+          <span id="page-info"></span>
+        </div>
+        <ul id="error-list" class="list list--error"></ul>
+        <ul id="warn-list" class="list list--warn"></ul>
+      </div>
+    </div>
+
+    <!-- CONFIG PANE -->
+    <div class="pane pane--config">
+      <div class="pane-bar">
+        <span class="pane-title">CONFIG</span>
+      </div>
+      <div class="controls">
+        <div class="control-group">
+          <label class="ctrl-label">Paper</label>
+          <select id="paper-size" class="ctrl-select">
+            <option value="a4" selected>A4</option>
+            <option value="letter">Letter</option>
+            <option value="a5">A5</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label class="ctrl-label">Grid</label>
+          <div class="grid-inputs">
+            <label class="grid-dim">
+              <span class="dim-label">R</span>
+              <input id="grid-rows" type="number" min="1" max="8" value="2" class="ctrl-num">
+            </label>
+            <span class="grid-x">×</span>
+            <label class="grid-dim">
+              <span class="dim-label">C</span>
+              <input id="grid-cols" type="number" min="1" max="8" value="5" class="ctrl-num">
+            </label>
+          </div>
+        </div>
+        <div class="control-group">
+          <label class="ctrl-label">Max font</label>
+          <div class="range-row">
+            <input id="font-size-range" type="range" min="8" max="28" value="16" step="1" class="ctrl-range">
+            <span id="font-size-label" class="range-val">16px</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREVIEW -->
+      <div class="pane-bar">
+        <span class="pane-title">PREVIEW</span>
+      </div>
+      <div id="preview-container" class="preview-container">
+        <div class="preview-empty">Paste or drop a file to see preview</div>
+      </div>
+
+      <!-- GENERATE -->
+      <div class="generate-bar">
+        <button id="download-btn" class="download-btn">DOWNLOAD PDF</button>
+        <span id="gen-status" class="gen-status"></span>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
