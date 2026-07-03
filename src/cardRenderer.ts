@@ -82,18 +82,12 @@ function createCardFace(
   const cardW = outer.clientWidth;
   const cardH = outer.clientHeight;
 
-  // Inner container: dimensions swapped for rotation
   const inner = document.createElement('div');
   inner.className = 'card-rotated-inner';
-  inner.style.width = `${cardH}px`;
-  inner.style.height = `${cardW}px`;
+  inner.style.width = `${cardW}px`;
+  inner.style.height = `${cardH}px`;
   inner.style.fontSize = `${fontSize}px`;
   inner.style.lineHeight = '1.35';
-
-  // Compute transform: translate to center, then rotate 90°
-  const tx = (cardW - cardH) / 2;
-  const ty = (cardH - cardW) / 2;
-  inner.style.transform = `translate(${tx}px, ${ty}px) rotate(90deg)`;
 
   if (textAlign === 'center') {
     inner.style.display = 'flex';
@@ -274,12 +268,8 @@ export function renderPreviewFace(
 
   const inner = document.createElement('div');
   inner.className = 'card-rotated-inner';
-  inner.style.width = `${cardH}px`;
-  inner.style.height = `${cardW}px`;
-
-  const tx = (cardW - cardH) / 2;
-  const ty = (cardH - cardW) / 2;
-  inner.style.transform = `translate(${tx}px, ${ty}px) rotate(90deg)`;
+  inner.style.width = `${cardW}px`;
+  inner.style.height = `${cardH}px`;
 
   if (textAlign === 'center') {
     inner.style.display = 'flex';
