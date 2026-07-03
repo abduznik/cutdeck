@@ -13,6 +13,16 @@
     <div class="pane pane--input">
       <div class="pane-bar">
         <span class="pane-title">INPUT</span>
+        <label class="examples-label" for="examples-select">examples</label>
+        <select id="examples-select" class="examples-select">
+          <option value="">— load example —</option>
+          <option value="Plain text">Plain text</option>
+          <option value="LaTeX / math">LaTeX / math</option>
+          <option value="Images">Images</option>
+          <option value="RTL / Hebrew">RTL / Hebrew</option>
+          <option value="Mixed (all features)">Mixed (all features)</option>
+          <option value="Anki TSV export">Anki TSV export</option>
+        </select>
         <label class="file-btn" for="file-input">+ file</label>
         <input type="file" id="file-input" accept=".txt,.csv,.tsv" hidden>
       </div>
@@ -73,6 +83,13 @@
             <input id="font-size-range" type="range" min="8" max="28" value="16" step="1" class="ctrl-range">
             <span id="font-size-label" class="range-val">16px</span>
           </div>
+        </div>
+        <div class="control-group">
+          <label class="ctrl-label">Align</label>
+          <select id="text-align" class="ctrl-select">
+            <option value="normal" selected>Normal</option>
+            <option value="center">Centered</option>
+          </select>
         </div>
       </div>
 

@@ -1,11 +1,12 @@
 import type { Card } from './parser';
 import { computeGrid, type GridConfig } from './grid';
-import { renderPreviewFace } from './cardRenderer';
+import { renderPreviewFace, type TextAlign } from './cardRenderer';
 
 export function renderPreview(
   container: HTMLElement,
   cards: Card[],
-  config: GridConfig
+  config: GridConfig,
+  textAlign: TextAlign
 ): void {
   container.innerHTML = '';
 
@@ -19,14 +20,13 @@ export function renderPreview(
 
   const grid = computeGrid(config, cards.length);
 
-  // Scale factor: fit paper width into container
   const containerW = container.clientWidth - 32;
   const scale = containerW / grid.paperWidthMm;
 
   const paperW = grid.paperWidthMm * scale;
   const paperH = grid.paperHeightMm * scale;
-  const cardW = (grid.cardWidthMm) * scale;
-  const cardH = (grid.cardHeightMm) * scale;
+  const cardW = grid.cardWidthMm * scale;
+  const cardH = grid.cardHeightMm * scale;
 
   // Front page
   const frontPage = document.createElement('div');
@@ -48,8 +48,7 @@ export function renderPreview(
     cell.style.fontSize = `${Math.max(6, 11 * scale)}px`;
 
     if (i < frontCards.length) {
-      renderPreviewFace(cell, frontCards[i].front, frontCards[i].frontRtl);
-      // Warnings
+      renderPreviewFace(cell, frontCards[i].front, frontCards[i].frontRtl, textAlign);
       if (frontCards[i].warnings.length > 0) {
         const badge = document.createElement('span');
         badge.className = 'preview-warn-badge';
@@ -60,7 +59,6 @@ export function renderPreview(
     frontPage.appendChild(cell);
   }
 
-  // Cut guide labels along edges
   addCutGuideLabels(frontPage, grid.rows, grid.cols, cardW, cardH, scale);
 
   const frontLabel = document.createElement('div');
@@ -89,7 +87,7 @@ export function renderPreview(
     cell.style.fontSize = `${Math.max(6, 11 * scale)}px`;
 
     if (i < frontCards.length) {
-      renderPreviewFace(cell, frontCards[i].back, frontCards[i].backRtl);
+      renderPreviewFace(cell, frontCards[i].back, frontCards[i].backRtl, textAlign);
     }
     backPage.appendChild(cell);
   }
@@ -111,7 +109,6 @@ function addCutGuideLabels(
   cardH: number,
   scale: number
 ): void {
-  // Horizontal tick marks along left edge
   for (let r = 1; r < rows; r++) {
     const y = r * cardH;
     const tick = document.createElement('div');
@@ -121,7 +118,6 @@ function addCutGuideLabels(
     page.appendChild(tick);
   }
 
-  // Vertical tick marks along top edge
   for (let c = 1; c < cols; c++) {
     const x = c * cardW;
     const tick = document.createElement('div');

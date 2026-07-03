@@ -69,6 +69,27 @@ html, body {
   text-transform: uppercase;
 }
 
+/* ── Examples dropdown ───────────────────────── */
+.examples-label {
+  font-size: 9px;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.examples-select {
+  background: var(--surface-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 2px 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  border-radius: 0;
+  outline: none;
+  max-width: 140px;
+}
+.examples-select:focus { border-color: var(--accent); }
+
 .file-btn {
   margin-left: auto;
   font-size: 10px;
@@ -319,7 +340,6 @@ html, body {
 .preview-card {
   position: absolute;
   border: 1px solid #d8d8d8;
-  padding: 3px;
   overflow: hidden;
   font-family: var(--font-serif);
   line-height: 1.35;
@@ -339,6 +359,25 @@ html, body {
   font-family: var(--font-mono);
   color: var(--warn);
   font-weight: 700;
+  z-index: 2;
+}
+
+/* ── Rotated card inner (landscape card, portrait text) ── */
+.card-rotated-inner {
+  position: absolute;
+  transform-origin: center center;
+  transform: translate(calc((var(--card-h) - var(--card-w)) / 2), calc((var(--card-h) - var(--card-w)) / 2)) rotate(90deg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 4px;
+  word-break: break-word;
+}
+
+/* For offscreen renderer — set via JS with explicit px */
+.card-rotated-inner {
+  /* Fallback: set via inline style in JS */
 }
 
 /* Cutting mat tick marks */
