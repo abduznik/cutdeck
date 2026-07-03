@@ -29,11 +29,12 @@ export function renderPreview(
   const cardW = grid.cardWidthMm * scale;
   const cardH = grid.cardHeightMm * scale;
 
-  // Front page
+  // Front page — attach to container FIRST so child cells have layout
   const frontPage = document.createElement('div');
   frontPage.className = 'preview-page';
   frontPage.style.width = `${paperW}px`;
   frontPage.style.height = `${paperH}px`;
+  container.appendChild(frontPage);
 
   const frontCards = cards.slice(0, grid.cardsPerPage);
   for (let i = 0; i < grid.cardsPerPage; i++) {
@@ -47,7 +48,6 @@ export function renderPreview(
     cell.style.width = `${cardW - 1}px`;
     cell.style.height = `${cardH - 1}px`;
 
-    // Append to DOM FIRST so clientHeight/clientHeight work for font sizing
     frontPage.appendChild(cell);
 
     if (i < frontCards.length) {
@@ -67,13 +67,13 @@ export function renderPreview(
   frontLabel.className = 'preview-page-label';
   frontLabel.textContent = `FRONT — sheet 1`;
   frontPage.appendChild(frontLabel);
-  container.appendChild(frontPage);
 
-  // Back page
+  // Back page — attach to container FIRST so child cells have layout
   const backPage = document.createElement('div');
   backPage.className = 'preview-page';
   backPage.style.width = `${paperW}px`;
   backPage.style.height = `${paperH}px`;
+  container.appendChild(backPage);
 
   for (let i = 0; i < grid.cardsPerPage; i++) {
     const col = i % grid.cols;
@@ -87,7 +87,6 @@ export function renderPreview(
     cell.style.width = `${cardW - 1}px`;
     cell.style.height = `${cardH - 1}px`;
 
-    // Append to DOM FIRST
     backPage.appendChild(cell);
 
     if (i < frontCards.length) {
@@ -101,7 +100,6 @@ export function renderPreview(
   backLabel.className = 'preview-page-label';
   backLabel.textContent = `BACK — sheet 1 (mirrored)`;
   backPage.appendChild(backLabel);
-  container.appendChild(backPage);
 }
 
 function addCutGuideLabels(
