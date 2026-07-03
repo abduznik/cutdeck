@@ -145,29 +145,47 @@ function findFittingFontSize(
   maxSize: number,
   textAlign: TextAlign
 ): number {
+  const label = text.slice(0, 30);
+  console.groupCollapsed(`[sizing] "${label}…" min=${minSize} max=${maxSize}`);
+
   // Check if a given font size overflows the container
   function overflows(size: number): boolean {
     createCardFace(outer, text, rtl, size, textAlign);
     const inner = outer.querySelector('.card-rotated-inner') as HTMLElement;
-    if (!inner) return false;
+    if (!inner) { console.log(`  size=${size}: no inner found`); return false; }
     // Temporarily remove overflow:hidden to measure true content height
     const prevOverflow = inner.style.overflow;
     inner.style.overflow = 'visible';
-    const overflows = inner.scrollHeight > inner.clientHeight + 1 || inner.scrollWidth > inner.clientWidth + 1;
+    const sH = inner.scrollHeight;
+    const cH = inner.clientHeight;
+    const sW = inner.scrollWidth;
+    const cW = inner.clientWidth;
+    const over = sH > cH + 1 || sW > cW + 1;
     inner.style.overflow = prevOverflow;
-    return overflows;
+    console.log(
+      `  size=${size.toFixed(1)}  scrollH=${sH} clientH=${cH}  scrollW=${sW} clientW=${cW}  → overflows=${over}`
+    );
+    return over;
   }
 
   // First check if max fits
-  if (!overflows(maxSize)) return maxSize;
+  const maxFits = !overflows(maxSize);
+  console.log(`maxSize check: fits=${maxFits}`);
+  if (maxFits) { console.groupEnd(); return maxSize; }
 
   // Linear shrink from max
   let size = maxSize;
   while (size > minSize) {
     size -= 0.5;
-    if (!overflows(size)) return size;
+    if (!overflows(size)) {
+      console.log(`→ returning ${size.toFixed(1)}`);
+      console.groupEnd();
+      return size;
+    }
   }
 
+  console.log(`→ returning minSize ${minSize}`);
+  console.groupEnd();
   return minSize;
 }
 
@@ -284,4 +302,23 @@ export function renderPreviewFace(
   }
 
   createCardFace(container, text, rtl, fontSize, textAlign);
+
+  // Final state diagnostic
+  const finalInner = container.querySelector('.card-rotated-inner') as HTMLElement;
+  if (finalInner) {
+    const prev = finalInner.style.overflow;
+    finalInner.style.overflow = 'visible';
+    const fSH = finalInner.scrollHeight;
+    const fCH = finalInner.clientHeight;
+    const fSW = finalInner.scrollWidth;
+    const fCW = finalInner.clientWidth;
+    finalInner.style.overflow = prev;
+    console.log(
+      `[final] "${text.slice(0, 20)}…"  fontSize=${fontSize.toFixed(1)}  ` +
+      `scrollH=${fSH} clientH=${fCH}  scrollW=${fSW} clientW=${fCW}  ` +
+      `overflow=${fSH > fCH + 1 || fSW > fCW + 1}  ` +
+      `outer clientW=${container.clientWidth} clientH=${container.clientHeight}  ` +
+      `outer overflow=${getComputedStyle(container).overflow}`
+    );
+  }
 }
