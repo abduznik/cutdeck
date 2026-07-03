@@ -136,13 +136,14 @@ let updateTimer: ReturnType<typeof setTimeout> | null = null;
 
 function scheduleUpdate(): void {
   if (updateTimer) clearTimeout(updateTimer);
-  updateTimer = setTimeout(doUpdate, 120);
+  updateTimer = setTimeout(doUpdate, 250);
 }
 
 function doUpdate(): void {
   const { cards, errors } = parseInput(textarea.value);
   updateSummary(cards, errors);
-  renderPreview(previewContainer, cards, getConfig(), getTextAlign());
+  const maxFont = isAutoFont() ? getMaxFontSize() : null;
+  renderPreview(previewContainer, cards, getConfig(), getTextAlign(), maxFont);
 }
 
 // ── File handling ──────────────────────────────

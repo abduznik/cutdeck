@@ -6,7 +6,8 @@ export function renderPreview(
   container: HTMLElement,
   cards: Card[],
   config: GridConfig,
-  textAlign: TextAlign
+  textAlign: TextAlign,
+  maxFontSize: number | null
 ): void {
   container.innerHTML = '';
 
@@ -45,10 +46,12 @@ export function renderPreview(
     cell.style.top = `${row * cardH}px`;
     cell.style.width = `${cardW - 1}px`;
     cell.style.height = `${cardH - 1}px`;
-    cell.style.fontSize = `${Math.max(6, 11 * scale)}px`;
+
+    // Append to DOM FIRST so clientHeight/clientHeight work for font sizing
+    frontPage.appendChild(cell);
 
     if (i < frontCards.length) {
-      renderPreviewFace(cell, frontCards[i].front, frontCards[i].frontRtl, textAlign, cardW, cardH);
+      renderPreviewFace(cell, frontCards[i].front, frontCards[i].frontRtl, textAlign, maxFontSize);
       if (frontCards[i].warnings.length > 0) {
         const badge = document.createElement('span');
         badge.className = 'preview-warn-badge';
@@ -56,7 +59,6 @@ export function renderPreview(
         cell.appendChild(badge);
       }
     }
-    frontPage.appendChild(cell);
   }
 
   addCutGuideLabels(frontPage, grid.rows, grid.cols, cardW, cardH, scale);
@@ -84,12 +86,13 @@ export function renderPreview(
     cell.style.top = `${row * cardH}px`;
     cell.style.width = `${cardW - 1}px`;
     cell.style.height = `${cardH - 1}px`;
-    cell.style.fontSize = `${Math.max(6, 11 * scale)}px`;
+
+    // Append to DOM FIRST
+    backPage.appendChild(cell);
 
     if (i < frontCards.length) {
-      renderPreviewFace(cell, frontCards[i].back, frontCards[i].backRtl, textAlign, cardW, cardH);
+      renderPreviewFace(cell, frontCards[i].back, frontCards[i].backRtl, textAlign, maxFontSize);
     }
-    backPage.appendChild(cell);
   }
 
   addCutGuideLabels(backPage, grid.rows, grid.cols, cardW, cardH, scale);

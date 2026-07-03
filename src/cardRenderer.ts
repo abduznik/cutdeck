@@ -261,41 +261,27 @@ export class CardRenderer {
   }
 }
 
-/** Lightweight preview renderer with rotation. Dimensions passed explicitly
- *  to avoid reading clientWidth/clientHeight from detached DOM elements. */
+/** Preview renderer. When maxFontSize is provided, uses findFittingFontSize
+ *  on the already-attached container to auto-size per card. */
 export function renderPreviewFace(
   container: HTMLElement,
   text: string,
   rtl: boolean,
   textAlign: TextAlign,
-  cardW: number,
-  cardH: number
+  maxFontSize: number | null
 ): void {
   container.innerHTML = '';
 
-  const inner = document.createElement('div');
-  inner.className = 'card-rotated-inner';
-  inner.style.width = `${cardW}px`;
-  inner.style.height = `${cardH}px`;
+  const cardW = container.clientWidth;
+  const cardH = container.clientHeight;
 
-  if (textAlign === 'center') {
-    inner.style.display = 'flex';
-    inner.style.alignItems = 'center';
-    inner.style.justifyContent = 'center';
-    inner.style.textAlign = 'center';
-  }
-
-  if (rtl) {
-    inner.style.direction = 'rtl';
-    if (textAlign !== 'center') inner.style.textAlign = 'right';
+  // Auto-size: find largest font that fits, or use a sensible default
+  let fontSize: number;
+  if (maxFontSize !== null) {
+    fontSize = findFittingFontSize(container, text, rtl, 6, maxFontSize, textAlign);
   } else {
-    inner.style.direction = 'ltr';
-    if (textAlign !== 'center') inner.style.textAlign = 'left';
+    fontSize = Math.min(cardW, cardH) * 0.12;
   }
 
-  const content = document.createElement('div');
-  content.className = 'card-content';
-  content.innerHTML = buildContentHtml(text);
-  inner.appendChild(content);
-  container.appendChild(inner);
+  createCardFace(container, text, rtl, fontSize, textAlign);
 }
