@@ -145,28 +145,27 @@ function findFittingFontSize(
   maxSize: number,
   textAlign: TextAlign
 ): number {
-  // Binary search for the largest font that fits
-  let lo = minSize;
-  let hi = maxSize;
-  const step = 0.5;
+  // Check if a given font size overflows the container
+  function overflows(size: number): boolean {
+    createCardFace(outer, text, rtl, size, textAlign);
+    const inner = outer.querySelector('.card-rotated-inner') as HTMLElement;
+    if (!inner) return false;
+    // Temporarily remove overflow:hidden to measure true content height
+    const prevOverflow = inner.style.overflow;
+    inner.style.overflow = 'visible';
+    const overflows = inner.scrollHeight > inner.clientHeight + 1 || inner.scrollWidth > inner.clientWidth + 1;
+    inner.style.overflow = prevOverflow;
+    return overflows;
+  }
 
   // First check if max fits
-  createCardFace(outer, text, rtl, maxSize, textAlign);
-  const inner = outer.querySelector('.card-rotated-inner') as HTMLElement;
-  if (inner && !(inner.scrollHeight > inner.clientHeight + 1 || inner.scrollWidth > inner.clientWidth + 1)) {
-    return maxSize;
-  }
+  if (!overflows(maxSize)) return maxSize;
 
   // Linear shrink from max
   let size = maxSize;
-  while (size >= minSize) {
-    createCardFace(outer, text, rtl, size, textAlign);
-    const inn = outer.querySelector('.card-rotated-inner') as HTMLElement;
-    if (!inn) return size;
-    if (!(inn.scrollHeight > inn.clientHeight + 1 || inn.scrollWidth > inn.clientWidth + 1)) {
-      return size;
-    }
-    size -= step;
+  while (size > minSize) {
+    size -= 0.5;
+    if (!overflows(size)) return size;
   }
 
   return minSize;
@@ -212,8 +211,12 @@ export class CardRenderer {
     if (frontSize <= minFontSize && card.front) {
       createCardFace(this.container, card.front, card.frontRtl, frontSize, textAlign);
       const inner = this.container.querySelector('.card-rotated-inner') as HTMLElement;
-      if (inner && (inner.scrollHeight > inner.clientHeight + 1 || inner.scrollWidth > inner.clientWidth + 1)) {
-        frontWarnings.push('Front text may overflow at minimum font size');
+      if (inner) {
+        const prev = inner.style.overflow;
+        inner.style.overflow = 'visible';
+        const overflowed = inner.scrollHeight > inner.clientHeight + 1 || inner.scrollWidth > inner.clientWidth + 1;
+        inner.style.overflow = prev;
+        if (overflowed) frontWarnings.push('Front text may overflow at minimum font size');
       }
     }
     const frontImg = await this.renderFace(card.front, card.frontRtl, frontSize);
@@ -226,8 +229,12 @@ export class CardRenderer {
     if (backSize <= minFontSize && card.back) {
       createCardFace(this.container, card.back, card.backRtl, backSize, textAlign);
       const inner = this.container.querySelector('.card-rotated-inner') as HTMLElement;
-      if (inner && (inner.scrollHeight > inner.clientHeight + 1 || inner.scrollWidth > inner.clientWidth + 1)) {
-        backWarnings.push('Back text may overflow at minimum font size');
+      if (inner) {
+        const prev = inner.style.overflow;
+        inner.style.overflow = 'visible';
+        const overflowed = inner.scrollHeight > inner.clientHeight + 1 || inner.scrollWidth > inner.clientWidth + 1;
+        inner.style.overflow = prev;
+        if (overflowed) backWarnings.push('Back text may overflow at minimum font size');
       }
     }
     const backImg = await this.renderFace(card.back, card.backRtl, backSize);
