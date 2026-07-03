@@ -451,52 +451,6 @@ html, body {
 ::-webkit-scrollbar-thumb { background: var(--border); }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 
-/* ── Debug panel ──────────────────────────────── */
-.debug-panel {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  width: 480px;
-  max-height: 50vh;
-  background: var(--surface);
-  border-top: 2px solid var(--accent);
-  border-left: 2px solid var(--accent);
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.debug-header {
-  padding: 6px 10px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  border-bottom: 1px solid var(--border);
-  text-transform: uppercase;
-}
-.debug-body {
-  flex: 1;
-  overflow: auto;
-  padding: 10px;
-}
-.debug-body canvas {
-  display: block;
-  max-width: 100%;
-  border: 1px solid var(--border);
-  image-rendering: pixelated;
-}
-.debug-log {
-  margin-top: 8px;
-  font-size: 10px;
-  font-family: var(--font-mono);
-  color: var(--text-dim);
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-.debug-log .highlight { color: var(--accent); font-weight: 700; }
-.debug-log .error { color: var(--error); }
-
 /* ── Responsive ──────────────────────────────── */
 @media (max-width: 860px) {
   .app { flex-direction: column; }

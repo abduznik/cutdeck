@@ -173,7 +173,7 @@ function findFittingFontSize(
 
 const OFFSCREEN_STYLE = `
   position:fixed; left:-9999px; top:-9999px;
-  visibility:hidden; pointer-events:none;
+  pointer-events:none;
   background:#fff; color:#111;
   font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
   overflow:hidden;

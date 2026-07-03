@@ -1,117 +1,108 @@
 #!/usr/bin/env node
 /**
- * verify-pdf.js — Extract and inspect images from a cutdeck-generated PDF.
- *
- * Usage: node verify-pdf.js <path-to-pdf> [output-dir]
- *
- * Requires: pdf-lib (already a project dependency)
- * Outputs: per-page PNG renders + per-image metadata to stdout
+ * verify-pdf.mjs — Check if a cutdeck PDF contains non-blank embedded images.
+ * Usage: node verify-pdf.mjs <path-to-pdf>
  */
-
 import { PDFDocument } from 'pdf-lib';
-import { writeFileSync, mkdirSync, existsSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from 'fs';
 
 const pdfPath = process.argv[2];
-const outDir = process.argv[3] || 'debug-output';
+if (!pdfPath) { console.error('Usage: node verify-pdf.mjs <path>'); process.exit(1); }
 
-if (!pdfPath) {
-  console.error('Usage: node verify-pdf.js <path-to-pdf> [output-dir]');
-  process.exit(1);
-}
-
-const pdfBytes = new Uint8Array((await import('fs')).readFileSync(pdfPath));
+const pdfBytes = new Uint8Array(readFileSync(pdfPath));
 const pdfDoc = await PDFDocument.load(pdfBytes);
-
 const pageCount = pdfDoc.getPageCount();
 console.log(`\nPDF: ${pdfPath}`);
 console.log(`Pages: ${pageCount}`);
+console.log(`File size: ${(pdfBytes.length / 1024 / 1024).toFixed(1)} MB\n`);
 
-if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
+let totalImages = 0;
+let blankImages = 0;
 
 for (let p = 0; p < pageCount; p++) {
   const page = pdfDoc.getPage(p);
   const { width, height } = page.getSize();
-  console.log(`\n── Page ${p + 1} ──`);
-  console.log(`  Size: ${width.toFixed(1)} × ${height.toFixed(1)} pt`);
+  console.log(`── Page ${p + 1} (${width.toFixed(0)}×${height.toFixed(0)} pt) ──`);
 
-  // Inspect the page's content stream for image references
-  const resources = page.node.get(pdfDoc.context.obj('Resources')) || page.node.Resources();
-  if (!resources) {
-    console.log('  Resources: none found');
-    continue;
-  }
+  const pageDict = page.node;
 
-  const xObject = resources.get(pdfDoc.context.obj('XObject'));
-  if (!xObject) {
-    console.log('  XObject: none — no embedded images');
-    continue;
-  }
+  // Walk the raw PDF object to find images
+  // pdf-lib stores page content; we look at all indirect objects for Image XObjects
+  const context = pdfDoc.context;
+  let imagesOnPage = 0;
 
-  const xObjectKeys = xObject.keys ? [...xObject.keys()] : [];
-  let imageCount = 0;
+  try {
+    // Get Resources
+    const resRef = pageDict.get(context.obj('Resources'));
+    if (!resRef) { console.log('  No Resources'); continue; }
+    const res = resRef.resolve ? resRef.resolve() : resRef;
 
-  for (const key of xObjectKeys) {
-    const ref = xObject.get(key);
-    if (!ref) continue;
+    const xobjRef = res.get(context.obj('XObject'));
+    if (!xobjRef) { console.log('  No XObject — no images'); continue; }
+    const xobj = xobjRef.resolve ? xobjRef.resolve() : xobjRef;
 
-    let obj;
-    try {
-      obj = ref.resolve ? ref.resolve() : ref;
-    } catch {
-      continue;
-    }
-
-    // Check if it's a Do instruction (XObject reference) — we look for Image type
-    const subtype = obj.get(pdfDoc.context.obj('Subtype'));
-    const subtypeStr = subtype ? subtype.toString() : '';
-
-    if (subtypeStr === '/Image') {
-      imageCount++;
-      const w = obj.get(pdfDoc.context.obj('Width'));
-      const h = obj.get(pdfDoc.context.obj('Height'));
-      const bitsPerComponent = obj.get(pdfDoc.context.obj('BitsPerComponent'));
-      const colorSpace = obj.get(pdfDoc.context.obj('ColorSpace'));
-
-      console.log(`  Image "${key.toString()}":`);
-      console.log(`    Dimensions: ${w} × ${h}`);
-      console.log(`    BitsPerComponent: ${bitsPerComponent}`);
-      console.log(`    ColorSpace: ${colorSpace}`);
-
-      // Try to extract raw image data
+    for (const [key, ref] of xobj.entries()) {
       try {
-        const imgBytes = obj.get(pdfDoc.context.obj('Stream'));
-        if (imgBytes) {
-          const arr = imgBytes instanceof Uint8Array ? imgBytes : new Uint8Array(imgBytes);
-          console.log(`    Stream size: ${arr.length} bytes`);
+        const obj = ref.resolve ? ref.resolve() : ref;
+        const subtype = obj.get(context.obj('Subtype'));
+        if (!subtype || subtype.toString() !== '/Image') continue;
 
-          // Sample first 20 bytes
-          const sample = Array.from(arr.slice(0, 20)).map(b => b.toString(16).padStart(2, '0')).join(' ');
-          console.log(`    First 20 bytes: ${sample}`);
+        imagesOnPage++;
+        totalImages++;
 
-          // Check if all zeros (blank)
-          let nonZero = 0;
-          for (let i = 0; i < arr.length; i++) {
-            if (arr[i] !== 0) nonZero++;
-          }
-          console.log(`    Non-zero bytes: ${nonZero} / ${arr.length} (${(nonZero / arr.length * 100).toFixed(1)}%)`);
-          if (nonZero === 0) {
-            console.log(`    ⚠ IMAGE IS ALL ZEROS (blank)`);
+        const w = obj.get(context.obj('Width'));
+        const h = obj.get(context.obj('Height'));
+        const streamRef = obj.get(context.obj('Stream'));
+
+        if (!streamRef) { console.log(`  ${key}: ${w}×${h}, no stream`); continue; }
+
+        // Read raw stream bytes
+        const streamObj = streamRef;
+        let bytes;
+        if (streamObj instanceof Uint8Array) {
+          bytes = streamObj;
+        } else if (streamObj.contents) {
+          bytes = new Uint8Array(streamObj.contents);
+        } else if (typeof streamObj === 'object' && streamObj.length) {
+          bytes = new Uint8Array(streamObj);
+        } else {
+          // Try to access underlying buffer
+          try {
+            bytes = new Uint8Array(pdfDoc.context.lookup(streamRef.tag ? streamRef : ref));
+          } catch {
+            console.log(`  ${key}: ${w}×${h}, cannot read stream`);
+            continue;
           }
         }
+
+        let nonZero = 0;
+        const checkLen = Math.min(bytes.length, 200000);
+        for (let i = 0; i < checkLen; i++) { if (bytes[i] !== 0) nonZero++; }
+        const pct = (nonZero / checkLen * 100).toFixed(1);
+
+        if (nonZero === 0) {
+          blankImages++;
+          console.log(`  ⚠ ${key}: ${w}×${h}, ${bytes.length} bytes — ALL ZEROS (BLANK)`);
+        } else {
+          console.log(`  ✓ ${key}: ${w}×${h}, ${bytes.length} bytes, ${pct}% non-zero`);
+        }
       } catch (e) {
-        console.log(`    Could not read stream: ${e.message}`);
+        console.log(`  ${key}: error reading — ${e.message}`);
       }
     }
-  }
 
-  if (imageCount === 0) {
-    console.log('  No Image XObjects found on this page');
-  } else {
-    console.log(`  Total images on page: ${imageCount}`);
+    if (imagesOnPage === 0) console.log('  No Image XObjects on this page');
+  } catch (e) {
+    console.log(`  Error: ${e.message}`);
   }
+  console.log();
 }
 
-console.log('\n── Done ──');
-console.log('For visual inspection, open the PDF in a browser or PDF viewer.');
-console.log('To extract page renders, use: npx pdfjs-dist-cli --help');
+console.log(`── Summary ──`);
+console.log(`Total images: ${totalImages}`);
+console.log(`Blank images: ${blankImages}`);
+if (blankImages === 0 && totalImages > 0) {
+  console.log('✓ All images contain non-zero pixel data');
+} else if (blankImages > 0) {
+  console.log('⚠ Some images are blank — content not rendered');
+}

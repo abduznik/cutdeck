@@ -97,6 +97,16 @@ npm run build
 
 Output goes to `dist/`. Static files only — no server needed.
 
+## Verify PDF output (QA tool)
+
+`verify-pdf.mjs` inspects the images embedded in a generated PDF to catch blank/missing content regressions:
+
+```sh
+node verify-pdf.mjs path/to/flashcards.pdf
+```
+
+Reports per-page: image count, dimensions, stream size, and non-zero byte percentage. Use after any html2canvas or PDF-related code change.
+
 ## Deploy to GitHub Pages
 
 1. Push to a GitHub repo.
