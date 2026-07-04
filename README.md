@@ -1,5 +1,7 @@
 # cutdeck
 
+![cutdeck](cutdeck.png)
+
 Flashcard-to-print-PDF generator. Paste flashcards or drop a file, get a print-ready double-sided PDF to cut into individual cards.
 
 ## How it works
