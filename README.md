@@ -1,8 +1,10 @@
-# cutdeck
+<p align="center">
+  <img src="cutdeck.png" alt="cutdeck" width="200">
+</p>
 
-![cutdeck](cutdeck.png)
+<h1 align="center">cutdeck</h1>
 
-Flashcard-to-print-PDF generator. Paste flashcards or drop a file, get a print-ready double-sided PDF to cut into individual cards.
+<p align="center">Flashcard-to-print-PDF generator. Paste flashcards or drop a file, get a print-ready double-sided PDF to cut into individual cards.</p>
 
 ## How it works
 
