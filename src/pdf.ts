@@ -69,7 +69,7 @@ export function generatePdf(options: PdfOptions): Uint8Array {
       if (i < sheetRendered.length) {
         const imgData = sheetRendered[i].front;
         if (imgData) {
-          doc.addImage(imgData, 'PNG', x, y, cardW, cardH);
+          doc.addImage(imgData, 'JPEG', x, y, cardW, cardH);
         }
       }
     }
@@ -93,7 +93,7 @@ export function generatePdf(options: PdfOptions): Uint8Array {
       if (i < sheetRendered.length) {
         const imgData = sheetRendered[i].back;
         if (imgData) {
-          doc.addImage(imgData, 'PNG', x, y, cardW, cardH);
+          doc.addImage(imgData, 'JPEG', x, y, cardW, cardH);
         }
       }
     }

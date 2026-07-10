@@ -1,6 +1,6 @@
 import type { Card } from './parser';
 
-const SCALE = 4;
+const SCALE = 3;
 
 export type TextAlign = 'normal' | 'center';
 
@@ -260,7 +260,7 @@ export class CardRenderer {
       height: this.options.cardHeightPx,
     });
 
-    return canvas.toDataURL('image/png');
+    return canvas.toDataURL('image/jpeg', 0.82);
   }
 }
 
